@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+#
+# oyster shell script framework library
+#
+
+umask 022
+SELF=$(basename "$1")
+APP_PATH=$(cd "$(dirname "$1")" && pwd)
+PS4='\[\e[32m\]${FUNCNAME[0]:-$SELF} line ${LINENO}:\[\e[m\] '
+LOG_FORMAT="+[${SELF}@%d/%b/%Y:%H:%M:%S]"
+
+# load OYST_PATH
+[ -f "${HOME}/.oyster" ] && source "${HOME}/.oyster"
+if [ -z "${OYST_PATH:-}" ]; then
+    echo "OYST_PATH is not specified"
+    exit 1
+fi
+
+# display usage
+_usage() {
+    local func info
+    [ "$APP_PATH" = "$OYST_PATH/modules" ] && modules=true
+
+    echo ""
+    echo "Usage: "
+
+    while read -r LINE; do
+        func="${LINE// /}"
+        func="${func%%(*}"
+        info=$(grep -C0 -A0 -B1 "^$func *() *{" "$APP_PATH/$SELF" | sed "N;s/\n.*//g")
+        if [ "$modules" = true ]; then
+            printf "    %-20s %-40s\n" "$func" "$info" | grep "#"
+        else
+            printf "    ./$SELF %-20s %-40s\n" "$func" "$info" | grep "#"
+        fi
+    done < <(grep "^[^_].\+() *{$" "$APP_PATH/$SELF")
+    echo ""
+    echo "oyster shell script framework library:"
+    echo ""
+    echo "    ENVIRONMENT: ${ENVIRONMENT:=(not specified)}"
+    echo "    APP_PATH:    $APP_PATH"
+    echo "    OYST_PATH:   $OYST_PATH"
+    echo ""
+}
+
+# echo_status "<level>" "<message>"
+echo_status() {
+
+    local level message label max_width format_width
+    level="${1:-info}" message="${2:-}"
+    label="$(tr '[:lower:]' '[:upper:]' <<<"$level")"
+    max_width=10
+    format_width=$(((${#label} + max_width)/2))
+
+    local normal bold
+    normal=0 bold=1
+
+    local default black red green yellow blue magenta cyan white
+    default=39 black=30 red=31 green=32 yellow=33 blue=34 magenta=35 cyan=36 white=37
+
+    local color_code critical error warning notice info debug ok
+    critical=${red} error=${red} warning=${yellow} notice=${green} info=${white} debug=${cyan} ok=${green} failure=${red}
+    eval color_code="\${$level}"
+
+    local cursor_position move_cursor
+    let cursor_position=$(tput cols)-12
+    move_cursor="echo -en \\033[__position__G"
+    set_color="echo -en \\033[__style__m"
+
+    ${move_cursor/__position__/${cursor_position:-60}}
+    echo -n "["
+    ${set_color/__style__/${normal};${color_code}}
+    printf "%*s%*s" ${format_width} "${label}" $((max_width - format_width))
+    ${set_color/__style__/${normal};${default}}
+    echo -n "]"
+    echo -ne "\r"
+    LANG=POSIX date "${LOG_FORMAT} ${message}"
+
+}
+
+# info "<message>"
+info() {
+    echo_status "info" "${1:-}"
+}
+
+# failure "<message>"
+failure() {
+    echo_status "failure" "${1:-}"
+}
+
+# ok "<message>"
+ok() {
+    echo_status "ok" "${1:-}"
+    exit 0
+}
+
+# die "<message>"
+die() {
+    local code=${?:-1}
+    [ "$code" -eq 0 ] && code=1
+    echo_status "failure" "${1:-}"
+    exit $code
+}
+
+# require <command1> <command2> ...
+require() {
+    for cmd in "${@}"; do
+        [[ ! "$(command -v "$cmd")" ]] && die "require $cmd"
+    done
+    return 0
+}
+
+# import <module-name1> <module-name2> ...
+import() {
+    for module in "${@}"; do
+        local oyster_module="${OYST_MODULE_PATH:-OYST_PATH/modules}/${module}"
+        local app_module="${APP_PATH}/modules/${module}"
+        [ -e "$oyster_module" ] && source "$oyster_module"
+        [ -e "$app_module" ] && source "$app_module"
+    done
+}
+
+# load ENVIRONMENT settings
+{
+    [ -f "$APP_PATH/settings/default" ] && source "$APP_PATH/settings/default"
+    if [ -z "${ENVIRONMENT:-}" ]; then
+        : # do nothing
+    else
+        if [ -f "$APP_PATH/settings/$ENVIRONMENT" ]; then
+            source "$APP_PATH/settings/$ENVIRONMENT"
+        else
+            die "loading settings/$ENVIRONMENT"
+        fi
+    fi
+}
+
+# load main script
+{
+    if [ -f "$1" ]; then
+        source "$1"
+        shift
+
+        # debug on
+        [ -n "${DEBUG:-}" ] && set -x
+
+        # execute command
+        "$@" 2>/dev/null || die "'$1' command not found."
+
+        # debug off
+        [ -n "${DEBUG:-}" ] && set +x
+    fi
+
+}
+
+[ -z "${SELF}" ] && ok "hello oyster!"
+
+# for documentation
+[ ${#1} == 0 ] && _usage
+
+ok "complete ${SELF}."

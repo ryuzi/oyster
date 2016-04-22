@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+set -eu
+
+# oyster setup script
+
+REPOSITORY="git@github.com:ryuzi/oyster.git"
+PREFIX_DEFAULT="${HOME:?}"
+OYSTERC="${PREFIX_DEFAULT}/.oysterc"
+
+# check .oysterc
+{
+    if [ -s "${OYSTERC}" ]; then
+        echo "> ${OYSTERC} already exists!"
+        echo
+        echo "# ${OYSTERC}"
+        cat "${OYSTERC}"
+        echo
+        exit 1
+    fi
+}
+
+# check installation directory
+{
+    echo -n "> install directory[ $PREFIX_DEFAULT ]: "
+    read -r INPUT
+    prefix="${INPUT:-$PREFIX_DEFAULT}"
+    if [ -e "${prefix}/.oyster" ]; then
+        echo "> '${prefix}/.oyster' already exists!"
+        echo
+        exit 1
+    fi
+}
+
+# check git command
+{
+    if type git; then
+        : # no problem.
+    else
+        echo "> please install git."
+        echo
+        exit 1
+    fi
+}
+
+# download oyster
+{
+    cd "${prefix}"
+    git clone "${REPOSITORY}" .oyster
+    cd -
+}
+
+# create initial setting
+{
+    echo "export OYST_PATH=${prefix}/.oyster" >> "${OYSTERC}"
+    echo "export PATH=\$OYST_PATH:\$PATH" >> "${OYSTERC}"
+    echo
+    echo "# ${OYSTERC}"
+    cat "${OYSTERC}"
+    echo
+    echo "> initial setting for '${OYSTERC}' created."
+    echo
+}
+
+# write initial setting for .bashrc
+echo "> please add the following settings for oyster to the top of your .bashrc file:"
+{
+    echo
+    echo
+    echo "# oyster script"
+    echo "[ -s \"${OYSTERC}\" ] && source \"${OYSTERC}\""
+    echo "# end oyster script"
+    echo
+    echo
+}
+
+echo "> complete setup oyster."
