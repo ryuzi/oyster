@@ -14,6 +14,7 @@
 ### Basic Installation
 
 Oyster is installed by running one of the following commands in your terminal. You can install this via the command-line with either `curl` or `wget`.
+Then reloading .bashrc file.
 
 #### via curl
 
@@ -147,6 +148,9 @@ Ran 2 tests.
 ```
 
 #### Testing Module Installation
+
+Testing Module is installed by running one of the following commands in your terminal. You can install this via the command-line with either `curl` or `wget`.
+Then reloading .oystrc file.
 
 #### via curl
 
