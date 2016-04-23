@@ -144,7 +144,7 @@ import() {
         [ -n "${DEBUG:-}" ] && set -x
 
         # execute command
-        "$@" 2>/dev/null || die "'$1' command not found."
+        "$@" || die "'$1' command not found."
 
         # debug off
         [ -n "${DEBUG:-}" ] && set +x
