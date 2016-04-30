@@ -3,7 +3,7 @@ set -eu
 
 # oyster setup script
 
-REPOSITORY="git@github.com:ryuzi/oyster.git"
+REPOSITORY="https://github.com/ryuzi/oyster.git"
 PREFIX_DEFAULT="${HOME:?}"
 OYSTERC="${PREFIX_DEFAULT}/.oysterc"
 
@@ -21,11 +21,8 @@ OYSTERC="${PREFIX_DEFAULT}/.oysterc"
 
 # check installation directory
 {
-    echo -n "> install directory[ $PREFIX_DEFAULT ]: "
-    read -r INPUT
-    prefix="${INPUT:-$PREFIX_DEFAULT}"
-    if [ -e "${prefix}/.oyster" ]; then
-        echo "> '${prefix}/.oyster' already exists!"
+    if [ -e "${PREFIX_DEFAULT}/.oyster" ]; then
+        echo "> '${PREFIX_DEFAULT}/.oyster' already exists!"
         echo
         exit 1
     fi
@@ -44,14 +41,14 @@ OYSTERC="${PREFIX_DEFAULT}/.oysterc"
 
 # download oyster
 {
-    cd "${prefix}"
+    cd "${PREFIX_DEFAULT}"
     git clone "${REPOSITORY}" .oyster
     cd -
 }
 
 # create initial setting
 {
-    echo "export OYST_PATH=${prefix}/.oyster" >> "${OYSTERC}"
+    echo "export OYST_PATH=${PREFIX_DEFAULT}/.oyster" >> "${OYSTERC}"
     echo "export PATH=\$OYST_PATH:\$PATH" >> "${OYSTERC}"
     echo
     echo "# ${OYSTERC}"
