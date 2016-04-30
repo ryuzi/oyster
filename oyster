@@ -10,6 +10,7 @@ PS4='\[\e[32m\]${FUNCNAME[0]:-$SELF} line ${LINENO}:\[\e[m\] '
 LOG_FORMAT="+[${SELF}@%d/%b/%Y:%H:%M:%S]"
 
 # load OYST_PATH
+# shellcheck disable=SC1090
 [ -f "${HOME}/.oyster" ] && source "${HOME}/.oyster"
 if [ -z "${OYST_PATH:-}" ]; then
     echo "OYST_PATH is not specified"
@@ -53,12 +54,15 @@ echo_status() {
     format_width=$(((${#label} + max_width)/2))
 
     local normal bold
+    # shellcheck disable=SC2034
     normal=0 bold=1
 
     local default black red green yellow blue magenta cyan white
+    # shellcheck disable=SC2034
     default=39 black=30 red=31 green=32 yellow=33 blue=34 magenta=35 cyan=36 white=37
 
     local color_code critical error warning notice info debug ok
+    # shellcheck disable=SC2034
     critical=${red} error=${red} warning=${yellow} notice=${green} info=${white} debug=${cyan} ok=${green} failure=${red}
     eval color_code="\${$level}"
 
@@ -157,4 +161,4 @@ import() {
 # for documentation
 [ ${#1} == 0 ] && _usage
 
-ok "complete ${SELF}."
+exit 0
