@@ -1,5 +1,7 @@
 # Oyster - shell script framework library
 
+[![Build Status](https://travis-ci.org/ryuzi/oyster.svg?branch=travis-ci)](https://travis-ci.org/ryuzi/oyster)
+
 > Oyster provides a simple framework for using, developing, maintaining bash-based shell script for your daily work.
 
 
