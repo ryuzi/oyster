@@ -1,0 +1,10 @@
+box: wercker/default
+build:
+    steps:
+        - shellcheck:
+            files: install oyster
+        - script:
+            name: run install test
+            code: |-
+                cd $WERCKER_SOURCE_DIR
+                ./install
