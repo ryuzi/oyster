@@ -93,7 +93,13 @@ speak Japanese.
 [myscript@DD/MM/YYYY:hh:mm:ss] complete myscript.                  [    OK    ]
 ```
 
-### Settings (environment variables)
+### Oyster Settings
+
+ENVIRONMENT
+
+When you use Oyster, you have to tell it which settings you're using.
+Do this by using an environment variable, ENVIRONMENT.
+
 
 If `$APP_PATH/settings/default` exists, auto load this settings first.
 And also exists `$APP_PATH/settings/$ENVIRONMENT`, auto load this settings too. 
