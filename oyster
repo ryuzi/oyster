@@ -18,7 +18,7 @@ if [ -z "${OYST_PATH:-}" ]; then
 fi
 
 # display usage
-_usage() {
+usage() {
     local func info
     [ "$APP_PATH" = "$OYST_PATH/modules" ] && modules=true
 
@@ -63,7 +63,7 @@ echo_status() {
 
     local color_code critical error warning notice info debug ok
     # shellcheck disable=SC2034
-    critical=${red} error=${red} warning=${yellow} notice=${green} info=${white} debug=${cyan} ok=${green} failure=${red}
+    critical=${red} error=${red} warning=${yellow} notice=${green} info=${magenta} debug=${cyan} ok=${green} failure=${red}
     eval color_code="\${$level}"
 
     local cursor_position move_cursor
@@ -148,7 +148,7 @@ import() {
         [ -n "${DEBUG:-}" ] && set -x
 
         # execute command
-        "$@" || die "'$1' command not found."
+        "$@" || die "execute '$1'."
 
         # debug off
         [ -n "${DEBUG:-}" ] && set +x
@@ -157,8 +157,5 @@ import() {
 }
 
 [ -z "${SELF}" ] && ok "hello oyster!"
-
-# for documentation
-[ ${#1} == 0 ] && _usage
 
 exit 0
