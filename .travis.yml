@@ -12,6 +12,9 @@ addons:
 script:
   - shellcheck oyster
   - ./install
+  - [ -s ~/.oysterc ]
+  - source ~/.oysterc
+  - oyster
 
 matrix:
   fast_finish: true
