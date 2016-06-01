@@ -6,11 +6,11 @@
 umask 022
 SELF=$(basename "$1")
 APP_PATH=$(cd "$(dirname "$1")" && pwd)
-PS4='\[\e[32m\]${FUNCNAME[0]:-$SELF} line ${LINENO}:\[\e[m\] '
+PS4='- \[\e[32m\][${FUNCNAME[0]:-$SELF}:${LINENO}]:\[\e[m\] '
 LOG_FORMAT="+[${SELF}@%d/%b/%Y:%H:%M:%S]"
 
+
 # load OYST_PATH
-# shellcheck disable=SC1090
 [ -f "${HOME}/.oyster" ] && source "${HOME}/.oyster"
 if [ -z "${OYST_PATH:-}" ]; then
     echo "OYST_PATH is not specified"
@@ -36,13 +36,14 @@ usage() {
         fi
     done < <(grep "^[^_].\+() *{$" "$APP_PATH/$SELF")
     echo ""
-    echo "oyster shell script framework library:"
+    echo "oyster shell script framework info:"
     echo ""
     echo "    ENVIRONMENT: ${ENVIRONMENT:=(not specified)}"
     echo "    APP_PATH:    $APP_PATH"
     echo "    OYST_PATH:   $OYST_PATH"
     echo ""
 }
+help() { usage; }
 
 # echo_status "<level>" "<message>"
 echo_status() {
@@ -54,15 +55,12 @@ echo_status() {
     format_width=$(((${#label} + max_width)/2))
 
     local normal bold
-    # shellcheck disable=SC2034
     normal=0 bold=1
 
     local default black red green yellow blue magenta cyan white
-    # shellcheck disable=SC2034
     default=39 black=30 red=31 green=32 yellow=33 blue=34 magenta=35 cyan=36 white=37
 
     local color_code critical error warning notice info debug ok
-    # shellcheck disable=SC2034
     critical=${red} error=${red} warning=${yellow} notice=${green} info=${magenta} debug=${cyan} ok=${green} failure=${red}
     eval color_code="\${$level}"
 
@@ -109,19 +107,26 @@ die() {
 # require <command1> <command2> ...
 require() {
     for cmd in "${@}"; do
-        [[ ! "$(command -v "$cmd")" ]] && die "require $cmd"
+        [[ ! "$(command -v "$cmd")" ]] && return 1
     done
     return 0
 }
 
 # import <module-name1> <module-name2> ...
 import() {
+    local oyster_module app_module
     for module in "${@}"; do
-        local oyster_module="${OYST_MODULE_PATH:-OYST_PATH/modules}/${module}"
-        local app_module="${APP_PATH}/modules/${module}"
-        [ -e "$oyster_module" ] && source "$oyster_module"
-        [ -e "$app_module" ] && source "$app_module"
+        oyster_module="${OYST_MODULE_PATH:-OYST_PATH/modules}/${module}"
+        app_module="${APP_PATH}/modules/${module}"
+        if [ -e "$app_module" ]; then
+            source "$app_module"
+            return 0
+        elif [ -e "$oyster_module" ]; then
+            source "$oyster_module"
+            return 0
+        fi
     done
+    return 1
 }
 
 # load ENVIRONMENT settings
@@ -148,7 +153,7 @@ import() {
         [ -n "${DEBUG:-}" ] && set -x
 
         # execute command
-        "$@" || die "execute '$1'."
+        "$@"
 
         # debug off
         [ -n "${DEBUG:-}" ] && set +x
