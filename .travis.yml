@@ -10,8 +10,7 @@ addons:
       - shellcheck
 
 script:
-  - export SHELLCHECK_OPTS='--exclude=SC1008,SC1090,SC2034'
-  - shellcheck oyster
+  - shellcheck --exclude=SC1008,SC1090,SC2034 oyster
   - ./install
   - source ~/.oysterc
   - oyster
