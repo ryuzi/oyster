@@ -8,6 +8,5 @@ build:
             code: |-
                 cd $WERCKER_SOURCE_DIR
                 ./install
-                [ -s ~/.oysterc ]
                 source ~/.oysterc
                 oyster
