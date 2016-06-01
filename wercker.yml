@@ -3,6 +3,7 @@ build:
     steps:
         - shellcheck:
             files: install oyster
+            exclude: --exclude=SC1008,SC1090,SC2034
         - script:
             name: run install test
             code: |-
