@@ -66,7 +66,8 @@ calc() {
 You can run usage by using command:
 
 ```
-$ ./myscript
+$ chmod u+x myscript
+$ ./myscript help
 
 Usage:
     ./myscript speak                # speak [loc]
@@ -74,97 +75,141 @@ Usage:
 
 oyster shell script framework library:
 
-    ENVIRONMENT: (not specified)
-    APP_PATH:    /path/to/myproject
-    OYST_PATH:   /your/home-dir/.oyster
-
-[myscript@DD/MM/YYYY:hh:mm:ss] complete myscript.                  [    OK    ]
-
+    ENVIRONMENT:      (not specified)
+    APP_PATH:         /path/to/myproject
+    OYST_PATH:        /your/home-directory/.oyster
 ```
 
-Your can also run by:
+You can also run by:
 
 ```
 $ ./myscript speak
 speak freely.
-[myscript@DD/MM/YYYY:hh:mm:ss] complete myscript.                  [    OK    ]
 $ ./myscript speak ja
 speak Japanese.
-[myscript@DD/MM/YYYY:hh:mm:ss] complete myscript.                  [    OK    ]
 ```
 
-### Settings (environment variables)
+### Oyster Settings file
 
-If `$APP_PATH/settings/default` exists, auto load this settings first.
-And also exists `$APP_PATH/settings/$ENVIRONMENT`, auto load this settings too. 
+When you use Oyster, you have to tell it which settings you're using.
+Do this by using an environment variable, ENVIRONMENT.
 
-ENVIRONMENT is used depending on run environment: production, develop, linux, osx, etc.
+```
+$ cd /path/to/myproject
+$ mkdir settings
+$ echo "favorite_sport=baseball" > settings/default
+```
 
-### Modules
-
-If modules exists in `$APP_PATH/modules/*`, it can import in myscript.
-
-#### Testing Module
-
-For example, create `/path/to/myproject/tests` with these contents:
+and modify `/path/to/myproject/myscript` with these contents:
 
 ```
 #!/usr/bin/env oyster
-import testing
-source myscript
 
-# test speak
-tests.speak() {
-    assert $LINENO "$(speak)" = "speak freely."
-    assert $LINENO "$(speak)" = "speak fleely."
-    assert $LINENO "$(speak en)" = "speak English."
-    assert $LINENO "$(speak ja)" = "speak Japanese."
+# speak [loc]
+speak() {
+	...
 }
 
-# test calc
-tests.calc() {
-	assert $LINENO "$(calc)" = 0
-	assert $LINENO "$(calc 1 + 3)" = 4
-	assert $LINENO "$(calc 2 x 3)" = 6
-	assert $LINENO "$(calc 10 / 2)" = 5
+# calc [expression]
+calc() {
+	...
+}
+
+# echo favorite sports
+sport() {
+	echo "My favorite sport is ${favorite_sport:-}."
 }
 ```
 
-You can run usage by using command:
+You can run by:
 
 ```
-$ ./tests run
-
-tests.speak: .F..
-tests.calc: ....
-
------
-Fail:
-tests.speak(tests at line 8): test expression speak freely. = speak fleely.
-
------
-Ran 2 tests.
-
-[tests@DD/MM/YYYY:hh:mm:ss] error = 1                             [ FAILURE  ]
-
+$ ./myscript sport
+My favorite sport is baseball.
 ```
 
-#### Testing Module Installation
+If `/path/to/myproject/settings/default` exists, auto load this settings first.
+And also exists `/path/to/myproject/settings/$ENVIRONMENT`, auto load this settings too.
 
-Testing Module is installed by running one of the following commands in your terminal. You can install this via the command-line with either `curl` or `wget`.
-Then reloading .oystrc file.
+for example,
 
-#### via curl
-
-```shell
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ryuzi/oyster-modules/master/install)"
+```
+$ echo "favorite_sport=football" > settings/highschool
+$ echo "favorite_sport=basketball" > settings/university
 ```
 
-#### via wget
+then, you can run by:
 
-```shell
-sh -c "$(wget https://raw.githubusercontent.com/ryuzi/oyster-modules/master/install -O -)"
 ```
+$ export ENVIRONMENT=highschool
+$ ./myscript sport
+My favorite sport is football.
+$ export ENVIRONMENT=university
+$ ./myscript sport
+My favorite sport is basketball.
+```
+
+ENVIRONMENT may use depending on run environment: production, develop, linux, osx, etc.
+
+### Oyster Modules
+
+To use module, please install the [oyster-modules](https://github.com/ryuzi/oyster-modules).
+
+
+
+### Custom Module
+
+Your created module is stored in `/path/to/myproject/modules`.
+For example, create `/path/to/myproject/modules/checksum` with these contents:
+
+```
+#!/usr/bin/env bash
+require openssl || die "openssl is require."
+
+sha1() {
+    local filename
+    [ -z "${1:-}" ] && return 1
+    filename="$1"
+    openssl sha1 "$filename" | cut -d ' ' -f 2
+}
+```
+
+and modify `/path/to/myproject/myscript` with these contents:
+
+```
+#!/usr/bin/env oyster
+
+# speak [loc]
+speak() {
+	...
+}
+
+# calc [expression]
+calc() {
+	...
+}
+
+# echo favorite sports
+sport() {
+	...
+}
+
+# echo checksum
+mysha1() {
+    import checksum || die "import checksum error"
+    local result
+    result=$(sha1 "myscript" || die "filename is not specified.")
+    echo "$result"
+}
+```
+
+then, you can run by:
+
+```
+$ ./myscript mysha1
+ef95cf43ecdb62b6ef0a5d9145089ed3d1dd0829
+```
+
 
 ## LICENSE
 
