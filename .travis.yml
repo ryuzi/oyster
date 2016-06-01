@@ -18,3 +18,5 @@ script:
 matrix:
   fast_finish: true
 
+notifications:
+  slack: oyster-script:TnRlNv7rAjivm3h4Y9h8oAiT
