@@ -11,3 +11,4 @@ build:
                 ./install
                 source ~/.oysterc
                 oyster
+                bash <(curl -s https://codecov.io/bash)
