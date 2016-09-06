@@ -9,5 +9,5 @@ build:
             code: |-
                 cd $WERCKER_SOURCE_DIR
                 ./install
-                source ~/.oysterc
+                source ~/.oyster/config
                 oyster

@@ -12,7 +12,7 @@ addons:
 script:
   - shellcheck --exclude=SC1008,SC1090,SC2034 oyster
   - ./install
-  - source ~/.oysterc
+  - source ~/.oyster/config
   - oyster
 
 matrix:
