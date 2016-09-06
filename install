@@ -5,15 +5,15 @@ set -eu
 
 REPOSITORY="https://github.com/ryuzi/oyster.git"
 PREFIX_DEFAULT="${HOME:?}"
-OYSTERC="${PREFIX_DEFAULT}/.oysterc"
+OYST_CONFIG="${PREFIX_DEFAULT}/.oyster/config"
 
-# check .oysterc
+# check config
 {
-    if [ -s "${OYSTERC}" ]; then
-        echo "> ${OYSTERC} already exists!"
+    if [ -s "${OYST_CONFIG}" ]; then
+        echo "> ${OYST_CONFIG} already exists!"
         echo
-        echo "# ${OYSTERC}"
-        cat "${OYSTERC}"
+        echo "# ${OYST_CONFIG}"
+        cat "${OYST_CONFIG}"
         echo
         exit 1
     fi
@@ -21,8 +21,13 @@ OYSTERC="${PREFIX_DEFAULT}/.oysterc"
 
 # check installation directory
 {
-    if [ -e "${PREFIX_DEFAULT}/.oyster" ]; then
+    if [ -d "${PREFIX_DEFAULT}/.oyster" ]; then
         echo "> '${PREFIX_DEFAULT}/.oyster' already exists!"
+        echo
+        exit 1
+    fi
+    if [ -e "${PREFIX_DEFAULT}/.oyster/config" ]; then
+        echo "> '${PREFIX_DEFAULT}/.oyster/config' already exists!"
         echo
         exit 1
     fi
@@ -42,19 +47,20 @@ OYSTERC="${PREFIX_DEFAULT}/.oysterc"
 # download oyster
 {
     cd "${PREFIX_DEFAULT}"
-    git clone "${REPOSITORY}" .oyster
+    mkdir .oyster
+    git clone "${REPOSITORY}" .oyster/core
     cd -
 }
 
 # create initial setting
 {
-    echo "export OYST_PATH=${PREFIX_DEFAULT}/.oyster" >> "${OYSTERC}"
-    echo "export PATH=\$OYST_PATH:\$PATH" >> "${OYSTERC}"
+    echo "export OYST_PATH=${PREFIX_DEFAULT}/.oyster/core" >> "${OYST_CONFIG}"
+    echo "export PATH=\$OYST_PATH:\$PATH" >> "${OYST_CONFIG}"
     echo
-    echo "# ${OYSTERC}"
-    cat "${OYSTERC}"
+    echo "# ${OYST_CONFIG}"
+    cat "${OYST_CONFIG}"
     echo
-    echo "> initial setting for '${OYSTERC}' created."
+    echo "> initial setting for '${OYST_CONFIG}' created."
     echo
 }
 
@@ -64,7 +70,7 @@ echo "> please add the following settings for oyster to the top of your .bashrc 
     echo
     echo
     echo "# oyster script"
-    echo "[ -s \"${OYSTERC}\" ] && source \"${OYSTERC}\""
+    echo "[ -s \"${OYST_CONFIG}\" ] && source \"${OYST_CONFIG}\""
     echo "# end oyster script"
     echo
     echo
