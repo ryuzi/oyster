@@ -17,6 +17,18 @@ if [ -z "${OYST_PATH:-}" ]; then
     exit 1
 fi
 
+_get_funcs() {
+    local func funcs
+    funcs=()
+    while read -r LINE
+    do
+        func="${LINE// /}"
+        func="${func%%(*}"
+        funcs+=("$func")
+    done < <(grep "^[^_ ].\+()" "$APP_PATH/$SELF")
+    echo "${funcs[@]}"
+}
+
 # display usage
 usage() {
     local func info
@@ -26,16 +38,16 @@ usage() {
         echo "Usage: "
 
         [ "$APP_PATH" = "$OYST_PATH/modules" ] && modules=true
-        while read -r LINE; do
-            func="${LINE// /}"
+        for func in $(_get_funcs); do
+            func="${func// /}"
             func="${func%%(*}"
             info=$(grep -C0 -A0 -B1 "^$func *() *{" "$APP_PATH/$SELF" | sed "N;s/\n.*//g")
             if [ "$modules" = true ]; then
                 printf "    %-20s %-40s\n" "$func" "$info" | grep "#"
             else
-                printf "    ./$SELF %-20s %-40s\n" "$func" "$info" | grep "#"
+                printf "    $SELF %-20s %-40s\n" "$func" "$info" | grep "#"
             fi
-        done < <(grep "^[^_].\+() *{$" "$APP_PATH/$SELF")
+        done
     fi
 
     echo ""
@@ -159,19 +171,19 @@ if [ "$SELF" = "test" ]; then
 else
 
     # load main script
-        if [ -f "$1" ]; then
-            source "$1"
-            shift
+    if [ -f "$1" ]; then
+        source "$1"
+        shift
 
-            # debug on
-            [ -n "${DEBUG:-}" ] && set -x
+        # debug on
+        [ -n "${DEBUG:-}" ] && set -x
 
-            # execute command
-            "$@"
+        # execute command
+        "$@"
 
-            # debug off
-            [ -n "${DEBUG:-}" ] && set +x
-        fi
+        # debug off
+        [ -n "${DEBUG:-}" ] && set +x
+    fi
 
     [ -z "${SELF}" ] && usage
 fi
