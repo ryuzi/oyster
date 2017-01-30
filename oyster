@@ -136,13 +136,10 @@ import() {
         app_module="${APP_PATH}/modules/${module}"
         if [ -e "$app_module" ]; then
             source "$app_module"
-            return 0
         elif [ -e "$oyster_module" ]; then
             source "$oyster_module"
-            return 0
         fi
     done
-    return 1
 }
 
 # load ENVIRONMENT settings
