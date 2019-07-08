@@ -35,6 +35,7 @@ usage() {
 
     if [ -n "$SELF" ]; then
         echo ""
+        require figlet && { figlet "$SELF"; echo ""; }
         echo "Usage: "
 
         [ "$APP_PATH" = "$OYST_PATH/modules" ] && modules=true
