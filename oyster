@@ -154,6 +154,7 @@ import() {
             die "loading settings/$ENVIRONMENT"
         fi
     fi
+    [ -f "$APP_PATH/.env" ] && source "$APP_PATH/.env"
 }
 
 if [ "$SELF" = "test" ]; then
