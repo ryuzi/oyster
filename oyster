@@ -45,7 +45,7 @@ usage() {
             if [ "$modules" = true ]; then
                 printf "    %-20s %-40s\n" "$func" "$info" | grep "#"
             else
-                printf "    $SELF %-20s %-40s\n" "$func" "$info" | grep "#"
+                printf "    ./$SELF %-20s %-40s\n" "$func" "$info" | grep "#"
             fi
         done
     fi
