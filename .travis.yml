@@ -1,16 +1,9 @@
-language: bash
+language: shell
 
 sudo: false
 
-addons:
-  apt:
-    sources:
-      - debian-sid
-    packages:
-      - shellcheck
-
 script:
-  - shellcheck --exclude=SC1008,SC1090,SC2034 oyster
+  - bash -c 'shopt -s globstar; shellcheck --exclude=SC1008,SC1090,SC2034 oyster'
   - ./install
   - source ~/.oyster/config
   - oyster
